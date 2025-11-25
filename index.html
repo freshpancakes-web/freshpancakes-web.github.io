@@ -94,3 +94,121 @@
     /* TOGGLE */
     .toggle-area {
         text-align: center;
+        margin-top: 25px;
+        font-size: 18px;
+    }
+
+    /* SNOW */
+    .snow-layer {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .flake {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        opacity: 0.9;
+        animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+        from { transform: translateY(-10vh); }
+        to { transform: translateY(110vh); }
+    }
+</style>
+</head>
+
+<body>
+
+<h1>Winter Calendar</h1>
+
+<div class="toggle-area">
+    <label>
+        <input type="checkbox" id="lockToggle" checked />
+        Lock doors until Dec 1
+    </label>
+</div>
+
+<!-- SNOW LAYERS -->
+<div class="snow-layer" id="snow1"></div>
+<div class="snow-layer" id="snow2"></div>
+<div class="snow-layer" id="snow3"></div>
+
+<!-- CALENDAR -->
+<div class="calendar" id="calendar"></div>
+
+<!-- IMAGE MODAL -->
+<div class="modal-overlay" id="modal">
+    <img id="modalImg" class="modal-image" />
+</div>
+
+<script>
+/* ---- GENERATE 30 DOORS ---- */
+const calendar = document.getElementById("calendar");
+const modal = document.getElementById("modal");
+const modalImg = document.getElementById("modalImg");
+
+for (let i = 1; i <= 30; i++) {
+    const door = document.createElement("div");
+    door.className = "door";
+
+    const number = document.createElement("div");
+    number.className = "door-number";
+    number.textContent = i;
+
+    door.appendChild(number);
+    calendar.appendChild(door);
+
+    door.addEventListener("click", () => {
+        const lockEnabled = document.getElementById("lockToggle").checked;
+        const now = new Date();
+        const unlockDate = new Date(now.getFullYear(), 11, i); 
+        /* Each door unlocks on its own date (1–30 December) */
+
+        if (lockEnabled && now < unlockDate) {
+            alert(`Door ${i} unlocks on December ${i}.`);
+            return;
+        }
+
+        if (!door.classList.contains("open")) {
+            number.style.display = "none"; // 🔥 Remove number instantly
+            door.classList.add("open");
+
+            setTimeout(() => {
+                modalImg.src = `images/${i}.jpg`; // 🔥 Load image correctly here
+                modal.classList.add("show");
+            }, 700);
+        }
+    });
+}
+
+/* ---- CLOSE MODAL ---- */
+modal.addEventListener("click", () => {
+    modal.classList.remove("show");
+});
+
+/* ---- SNOW GENERATOR ---- */
+function createSnow(layer, size, count, speed) {
+    for (let i = 0; i < count; i++) {
+        const flake = document.createElement("div");
+        flake.className = "flake";
+        flake.style.width = size + "px";
+        flake.style.height = size + "px";
+        flake.style.left = Math.random() * 100 + "vw";
+        flake.style.animationDuration = speed + Math.random() * 3 + "s";
+        flake.style.animationDelay = Math.random() * 5 + "s";
+        layer.appendChild(flake);
+    }
+}
+
+createSnow(document.getElementById("snow1"), 6, 40, 6);
+createSnow(document.getElementById("snow2"), 3, 60, 10);
+createSnow(document.getElementById("snow3"), 2, 80, 14);
+</script>
+
+</body>
+</html>
