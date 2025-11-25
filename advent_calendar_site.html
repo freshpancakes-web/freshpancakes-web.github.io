@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advent Calendar</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      max-width: 600px;
+      width: 100%;
+    }
+    .door {
+      background: #b30000;
+      color: white;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 90px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 24px;
+      transition: 0.2s;
+    }
+    .door:hover {
+      background: #d60000;
+    }
+    #revealContainer {
+      margin-top: 30px;
+      text-align: center;
+    }
+    #revealContainer img {
+      max-width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <div class="calendar">
+      <!-- 30 doors -->
+      <script>
+        for (let i = 1; i <= 30; i++) {
+          document.write(`<div class='door' data-img='images/pic${i}.jpg'>${i}</div>`);
+        }
+      </script>
+    </div>
+
+    <div id="revealContainer">
+      <h2>Click a door to reveal its picture</h2>
+      <img id="reveal" src="" alt="" />
+    </div>
+  </div>
+
+  <script>
+    document.querySelectorAll('.door').forEach(door => {
+      door.addEventListener('click', () => {
+        const imgPath = door.dataset.img;
+        document.getElementById('reveal').src = imgPath;
+      });
+    });
+  </script>
+</body>
+</html>
