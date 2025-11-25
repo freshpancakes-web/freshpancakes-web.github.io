@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pos Support Advent Calendar</title>
+<title>POS Support Advent Calendar</title>
 <style>
 body {
   margin: 0;
@@ -69,7 +69,7 @@ h1 {
 </style>
 </head>
 <body>
-<h1> Pos Support Advent Calendar</h1>
+<h1>POS Support Advent Calendar</h1>
 <button id="toggleLock" style="margin-bottom:20px;padding:10px 20px;cursor:pointer;">Date Lock: OFF</button>
 <div class="calendar"></div>
 <div class="overlay" id="overlay">
@@ -101,7 +101,7 @@ for(let i=1;i<=30;i++){
   const inner=document.createElement('div');
   inner.className='door-inner';
   const front=document.createElement('div'); front.className='door-front'; front.textContent=i;
-  const back=document.createElement('div'); back.className='door-back'; back.textContent = 'X';
+  const back=document.createElement('div'); back.className='door-back'; back.textContent = '';
   inner.appendChild(front); inner.appendChild(back); door.appendChild(inner);
 
   if(opened.includes(i)) door.classList.add('flipped');
@@ -109,7 +109,7 @@ for(let i=1;i<=30;i++){
   door.addEventListener('click',()=>{
     const today=new Date().getDate();
     if(dateLock && i>today){
-      door.animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(0)'}],{duration:300});
+      door.animate([{transform:'translate(0)'},{transform:'translate(-10px)'},{transform:'translate(10px)'},{transform:'translate(0)'}],{duration:300});
       return;
     }
     if(!door.classList.contains('flipped')){
