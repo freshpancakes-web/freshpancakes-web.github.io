@@ -166,8 +166,7 @@ for (let i = 1; i <= 30; i++) {
     door.addEventListener("click", () => {
         const lockEnabled = document.getElementById("lockToggle").checked;
         const now = new Date();
-        const unlockDate = new Date(now.getFullYear(), 11, i); 
-        /* Each door unlocks on its own date (1–30 December) */
+        const unlockDate = new Date(now.getFullYear(), 11, i);
 
         if (lockEnabled && now < unlockDate) {
             alert(`Door ${i} unlocks on December ${i}.`);
@@ -175,11 +174,11 @@ for (let i = 1; i <= 30; i++) {
         }
 
         if (!door.classList.contains("open")) {
-            number.style.display = "none"; // 🔥 Remove number instantly
+            number.style.display = "none";
             door.classList.add("open");
 
             setTimeout(() => {
-                modalImg.src = `images/${i}.jpg`; // 🔥 Load image correctly here
+                modalImg.src = `images/pic${i}.jpg`;   // <-- updated here
                 modal.classList.add("show");
             }, 700);
         }
@@ -209,6 +208,7 @@ createSnow(document.getElementById("snow1"), 6, 40, 6);
 createSnow(document.getElementById("snow2"), 3, 60, 10);
 createSnow(document.getElementById("snow3"), 2, 80, 14);
 </script>
+
 
 </body>
 </html>
