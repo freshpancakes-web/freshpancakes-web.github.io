@@ -1,210 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title> POS Support Advent Calendar</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: ##FFFFFF;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      overflow-x: hidden;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title> POS SUPPORT Advent Calendar</title>
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: ##FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  overflow-x: hidden;
+  color: white;
+}
 
-    h1 { margin-bottom: 20px; }
+h1 {
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeIn 2s forwards;
+}
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
 
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-      gap: 12px;
-      width: 100%;
-      max-width: 600px;
-    }
+/* Snow layers */
+.snowflake {
+  position: fixed;
+  top: -10px;
+  color: white;
+  font-size: 12px;
+  opacity: 0.8;
+  z-index: 20;
+}
+.snow1 { animation: fall 10s linear infinite; }
+.snow2 { animation: fall 15s linear infinite; }
+.snow3 { animation: fall 20s linear infinite; }
+@keyframes fall { 0% { transform: translateY(0); } 100% { transform: translateY(110vh); } }
 
-    .door {
-      background: #065EC4;
-      color: white;
-      padding: 35px;
-      text-align: center;
-      border-radius: 14px;
-      font-size: 26px;
-      cursor: pointer;
-      perspective: 800px;
-    }
+.calendar { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 16px; width: 100%; max-width: 700px; }
 
-    .door-inner {
-      width: 100%;
-      height: 100%;
-      transform-style: preserve-3d;
-      transition: transform 0.6s;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+.door {
+  background: #065EC4;
+  color: white;
+  padding: 40px;
+  text-align: center;
+  border-radius: 14px;
+  font-size: 28px;
+  cursor: pointer;
+  perspective: 800px;
+  box-shadow: 0 0 15px rgba(0, 94, 196, 0.5);
+  transition: box-shadow 0.3s;
+}
+.door:hover { box-shadow: 0 0 30px rgba(0, 94, 196, 0.9); }
 
-    .door.flipped .door-inner {
-      transform: rotateY(180deg);
-    }
+.door-inner { width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.6s; display: flex; justify-content: center; align-items: center; }
+.door.flipped .door-inner { transform: rotateY(180deg); }
+.door-front, .door-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 14px; display: flex; justify-content: center; align-items: center; }
+.door-front { background: #065EC4; }
+.door-back { background: #0045a0; transform: rotateY(180deg); }
 
-    .door-front, .door-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      border-radius: 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .door-front {
-      background: #065EC4;
-      color: white;
-    }
-
-    .door-back {
-      background: #660000;
-      transform: rotateY(180deg);
-      color: white;
-    }
-
-    /* Popup overlay */
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      z-index: 10;
-    }
-
-    .overlay img {
-      max-width: 90%;
-      max-height: 90%;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
-      animation: popIn 0.3s ease-out;
-    }
-
-    @keyframes popIn {
-      from { transform: scale(0.7); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    .close-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      font-size: 30px;
-      color: white;
-      cursor: pointer;
-      z-index: 11;
-    }
-
-    /* Snow effect */
-    .snowflake {
-      position: fixed;
-      top: -10px;
-      color: white;
-      font-size: 12px;
-      opacity: 0.8;
-      animation: fall linear infinite;
-      z-index: 20;
-    }
-
-    @keyframes fall {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(110vh); }
-    }
-  </style>
+.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; padding: 20px; z-index: 10; }
+.overlay img { max-width: 90%; max-height: 90%; border-radius: 10px; box-shadow: 0 0 20px rgba(255,255,255,0.7); animation: popIn 0.3s ease-out; }
+@keyframes popIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.close-btn { position: absolute; top: 20px; right: 20px; font-size: 30px; color: white; cursor: pointer; z-index: 11; }
+</style>
 </head>
 <body>
-  <h1>POS Support Advent Calendar</h1>
-  <div class="calendar"></div>
+<h1>Advent Calendar</h1>
+<button id="toggleLock" style="margin-bottom:20px;padding:10px 20px;cursor:pointer;">Date Lock: OFF</button>
+<div class="calendar"></div>
+<div class="overlay" id="overlay">
+  <span class="close-btn" id="closeBtn">&times;</span>
+  <img id="popupImg" src="" alt="Revealed Image" />
+</div>
+<script>
+let dateLock = false;
+const toggleBtn = document.getElementById('toggleLock');
+toggleBtn.onclick = () => {
+  dateLock = !dateLock;
+  toggleBtn.textContent = dateLock ? 'Date Lock: ON' : 'Date Lock: OFF';
+};
 
-  <div class="overlay" id="overlay">
-    <span class="close-btn" id="closeBtn">&times;</span>
-    <img id="popupImg" src="" alt="Revealed Image" />
-  </div>
+const calendar = document.querySelector('.calendar');
+const overlay = document.getElementById('overlay');
+const popupImg = document.getElementById('popupImg');
+const closeBtn = document.getElementById('closeBtn');
 
-  <script>
-    let dateLock = false;
+let opened = JSON.parse(localStorage.getItem('openedDoors')||'[]');
 
-    const toggle = document.createElement('button');
-    toggle.textContent = "Toggle Date Lock";
-    toggle.style.marginBottom = "20px";
-    toggle.style.padding = "10px 20px";
-    toggle.style.cursor = "pointer";
-    toggle.onclick = () => {
-      dateLock = !dateLock;
-      toggle.textContent = dateLock ? "Date Lock: ON" : "Date Lock: OFF";
-    };
-    document.body.insertBefore(toggle, document.querySelector('.calendar'));
+function updateOpenedDoors(){
+  localStorage.setItem('openedDoors', JSON.stringify(opened));
+}
 
-    const calendar = document.querySelector('.calendar');
-    const overlay = document.getElementById('overlay');
-    const popupImg = document.getElementById('popupImg');
-    const closeBtn = document.getElementById('closeBtn');
+for(let i=1;i<=30;i++){
+  const door = document.createElement('div');
+  door.className='door';
+  const inner=document.createElement('div');
+  inner.className='door-inner';
+  const front=document.createElement('div'); front.className='door-front'; front.textContent=i;
+  const back=document.createElement('div'); back.className='door-back'; back.textContent='★';
+  inner.appendChild(front); inner.appendChild(back); door.appendChild(inner);
 
-    for (let i = 1; i <= 30; i++) {
-      const door = document.createElement('div');
-      door.className = 'door';
+  if(opened.includes(i)) door.classList.add('flipped');
 
-      const inner = document.createElement('div');
-      inner.className = 'door-inner';
-
-      const front = document.createElement('div');
-      front.className = 'door-front';
-      front.textContent = i;
-
-      const back = document.createElement('div');
-      back.className = 'door-back';
-      back.textContent = "★";
-
-      inner.appendChild(front);
-      inner.appendChild(back);
-      door.appendChild(inner);
-
-      door.addEventListener('click', () => {
-        door.classList.add('flipped');
-        setTimeout(() => {
-          popupImg.src = `images/pic${i}.jpg`;
-          overlay.style.display = 'flex';
-        }, 600);
-      });
-
-      calendar.appendChild(door);
+  door.addEventListener('click',()=>{
+    const today=new Date().getDate();
+    if(dateLock && i>today){
+      door.animate([{transform:'translateX(0)'},{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(0)'}],{duration:300});
+      return;
     }
-
-    closeBtn.addEventListener('click', () => overlay.style.display = 'none');
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) overlay.style.display = 'none';
-    });
-
-    // Snow effect generator
-    function createSnowflake() {
-      const snow = document.createElement('div');
-      snow.className = 'snowflake';
-      snow.textContent = '❄';
-      snow.style.left = Math.random() * 100 + 'vw';
-      snow.style.animationDuration = 3 + Math.random() * 5 + 's';
-      snow.style.fontSize = 10 + Math.random() * 15 + 'px';
-      document.body.appendChild(snow);
-
-      setTimeout(() => snow.remove(), 9000);
+    if(!door.classList.contains('flipped')){
+      const audio=new Audio('https://www.soundjay.com/buttons/sounds/button-09.mp3');
+      audio.play();
+      door.classList.add('flipped');
+      opened.push(i);
+      updateOpenedDoors();
     }
+    popupImg.src=`images/pic${i}.jpg`;
+    overlay.style.display='flex';
+  });
 
-    setInterval(createSnowflake, 150);
-  </script>
+  calendar.appendChild(door);
+}
+
+closeBtn.onclick=()=>overlay.style.display='none';
+overlay.onclick=(e)=>{if(e.target===overlay) overlay.style.display='none';};
+
+// Snow layers
+function createSnowflake(className){
+  const snow=document.createElement('div');
+  snow.className='snowflake '+className;
+  snow.textContent='❄';
+  snow.style.left=Math.random()*100+'vw';
+  snow.style.fontSize=10+Math.random()*15+'px';
+  document.body.appendChild(snow);
+  setTimeout(()=>snow.remove(),20000);
+}
+setInterval(()=>{createSnowflake('snow1');createSnowflake('snow2');createSnowflake('snow3');},150);
+</script>
 </body>
 </html>
