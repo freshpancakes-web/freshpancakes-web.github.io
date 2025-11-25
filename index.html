@@ -29,9 +29,9 @@
     /* GRID */
     .calendar {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 20px;
-        max-width: 900px;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+        max-width: 1000px;
         margin: 40px auto;
         z-index: 5;
         position: relative;
@@ -39,14 +39,14 @@
 
     /* DOOR */
     .door {
-        width: 140px;
-        height: 200px;
+        width: 100%;
+        aspect-ratio: 7 / 10;
         background: #065EC4;
         border-radius: 18px;
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 42px;
+        font-size: 2rem;
         font-weight: bold;
         color: white;
         cursor: pointer;
@@ -146,13 +146,27 @@
     <img id="modalImg" class="modal-image" />
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 <script>
-/* ---- GENERATE 30 DOORS ---- */
+/* ---- GENERATE 30 DOORS WITH MEMORY AND SHUFFLE ---- */
 const calendar = document.getElementById("calendar");
 const modal = document.getElementById("modal");
 const modalImg = document.getElementById("modalImg");
 
-for (let i = 1; i <= 30; i++) {
+let openedDoors = JSON.parse(localStorage.getItem("openedDoors")) || [];
+
+// Shuffle array helper
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+const doorNumbers = shuffle(Array.from({length:30}, (_,i)=>i+1));
+
+doorNumbers.forEach(i => {
     const door = document.createElement("div");
     door.className = "door";
 
@@ -162,6 +176,11 @@ for (let i = 1; i <= 30; i++) {
 
     door.appendChild(number);
     calendar.appendChild(door);
+
+    if (openedDoors.includes(i)) {
+        door.classList.add("open");
+        number.style.display = "none";
+    }
 
     door.addEventListener("click", () => {
         const lockEnabled = document.getElementById("lockToggle").checked;
@@ -176,14 +195,23 @@ for (let i = 1; i <= 30; i++) {
         if (!door.classList.contains("open")) {
             number.style.display = "none";
             door.classList.add("open");
+            openedDoors.push(i);
+            localStorage.setItem("openedDoors", JSON.stringify(openedDoors));
+
+            // Confetti
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
 
             setTimeout(() => {
-                modalImg.src = `images/pic${i}.jpg`;   // <-- updated here
+                modalImg.src = `images/pic${i}.jpg`;
                 modal.classList.add("show");
             }, 700);
         }
     });
-}
+});
 
 /* ---- CLOSE MODAL ---- */
 modal.addEventListener("click", () => {
@@ -208,7 +236,6 @@ createSnow(document.getElementById("snow1"), 6, 40, 6);
 createSnow(document.getElementById("snow2"), 3, 60, 10);
 createSnow(document.getElementById("snow3"), 2, 80, 14);
 </script>
-
 
 </body>
 </html>
