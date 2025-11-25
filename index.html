@@ -78,12 +78,26 @@ h1 {
     box-shadow: 0 0 30px rgba(255,255,255,.7);
 }
 
-/* Toggle */
+/* Toggle and Reset */
 .toggle-area {
     text-align: center;
-    margin-top: 25px;
+    margin: 15px 0;
     font-size: 18px;
 }
+
+.toggle-area button {
+    margin-left: 15px;
+    padding: 5px 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background-color: #065EC4;
+    color: white;
+    transition: transform 0.2s;
+}
+
+.toggle-area button:hover { transform: scale(1.05); }
 
 /* Snow */
 .snow-layer {
@@ -116,6 +130,7 @@ h1 {
     <label>
         <input type="checkbox" id="lockToggle" checked /> Lock doors until Dec 1
     </label>
+    <button id="resetBtn">Reset Calendar</button>
 </div>
 
 <!-- Snow Layers -->
@@ -225,6 +240,16 @@ doorNumbers.forEach((doorNumber,index)=>{
 
 // Close modal
 modal.addEventListener("click",()=>{modal.classList.remove("show");});
+
+// Reset Calendar
+const resetBtn = document.getElementById("resetBtn");
+resetBtn.addEventListener("click",()=>{
+    if(confirm("Are you sure you want to reset your calendar? This will generate a new set of images.")){
+        localStorage.removeItem("openedDoors");
+        localStorage.removeItem("userImages");
+        location.reload();
+    }
+});
 </script>
 
 </body>
