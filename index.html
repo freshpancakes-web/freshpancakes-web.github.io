@@ -3,238 +3,228 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Cursed Advent Calendar</title>
-
+<title>Advent Calendar</title>
 <style>
-    body {
-        margin: 0;
-        background: black;
-        font-family: Arial, sans-serif;
-        color: white;
-        overflow-x: hidden;
-    }
+body {
+    margin: 0;
+    background: black;
+    font-family: Arial, sans-serif;
+    color: white;
+    overflow-x: hidden;
+}
 
-    h1 {
-        text-align: center;
-        margin-top: 30px;
-        font-size: 36px;
-        animation: fadeIn 1.5s ease forwards;
-    }
+h1 {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 36px;
+    animation: fadeIn 1.5s ease forwards;
+}
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-    /* GRID */
-    .calendar {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 15px;
-        max-width: 1000px;
-        margin: 40px auto;
-        z-index: 5;
-        position: relative;
-    }
+/* Calendar Grid */
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    max-width: 1000px;
+    margin: 40px auto;
+}
 
-    /* DOOR */
-    .door {
-        width: 100%;
-        aspect-ratio: 7 / 10;
-        background: #065EC4;
-        border-radius: 18px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 2rem;
-        font-weight: bold;
-        color: white;
-        cursor: pointer;
-        position: relative;
-        transform-style: preserve-3d;
-        transition: transform 1s ease;
-        box-shadow: 0 0 15px rgba(0, 0, 0, .5);
-    }
+/* Door */
+.door {
+    width: 100%;
+    aspect-ratio: 7 / 10;
+    background: #065EC4;
+    border-radius: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 1s ease;
+    box-shadow: 0 0 15px rgba(0, 0, 0, .5);
+}
 
-    .door:hover {
-        transform: scale(1.05);
-    }
+.door:hover { transform: scale(1.05); }
+.door.open { transform: rotateY(-160deg); }
 
-    .door.open {
-        transform: rotateY(-160deg);
-    }
+.door-number { position: absolute; backface-visibility: hidden; }
 
-    .door-number {
-        position: absolute;
-        backface-visibility: hidden;
-    }
+/* Modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+}
 
-    /* MODAL OVERLAY */
-    .modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,.85);
-        display: none;
-        justify-content: center;
-        align-items: center;
-        z-index: 20;
-    }
+.modal-overlay.show { display: flex; }
 
-    .modal-overlay.show {
-        display: flex;
-    }
+.modal-image {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(255,255,255,.7);
+}
 
-    .modal-image {
-        max-width: 90%;
-        max-height: 90%;
-        border-radius: 12px;
-        box-shadow: 0 0 30px rgba(255,255,255,.7);
-    }
+/* Toggle */
+.toggle-area {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 18px;
+}
 
-    /* TOGGLE */
-    .toggle-area {
-        text-align: center;
-        margin-top: 25px;
-        font-size: 18px;
-    }
+/* Snow */
+.snow-layer {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+}
 
-    /* SNOW */
-    .snow-layer {
-        position: fixed;
-        inset: 0;
-        overflow: hidden;
-        pointer-events: none;
-        z-index: 1;
-    }
+.flake {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.9;
+    animation: fall linear infinite;
+}
 
-    .flake {
-        position: absolute;
-        background: white;
-        border-radius: 50%;
-        opacity: 0.9;
-        animation: fall linear infinite;
-    }
-
-    @keyframes fall {
-        from { transform: translateY(-10vh); }
-        to { transform: translateY(110vh); }
-    }
+@keyframes fall {
+    from { transform: translateY(-10vh); }
+    to { transform: translateY(110vh); }
+}
 </style>
 </head>
-
 <body>
 
-<h1>POS Support Advent Calendar</h1>
+<h1>Winter Calendar</h1>
 
 <div class="toggle-area">
     <label>
-        <input type="checkbox" id="lockToggle" checked />
-        Lock doors until Dec 1
+        <input type="checkbox" id="lockToggle" checked /> Lock doors until Dec 1
     </label>
 </div>
 
-<!-- SNOW LAYERS -->
+<!-- Snow Layers -->
 <div class="snow-layer" id="snow1"></div>
 <div class="snow-layer" id="snow2"></div>
 <div class="snow-layer" id="snow3"></div>
 
-<!-- CALENDAR -->
+<!-- Calendar -->
 <div class="calendar" id="calendar"></div>
 
-<!-- IMAGE MODAL -->
+<!-- Modal -->
 <div class="modal-overlay" id="modal">
     <img id="modalImg" class="modal-image" />
 </div>
 
+<!-- Confetti Library -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
 <script>
-/* ---- GENERATE 30 DOORS WITH MEMORY AND SHUFFLE ---- */
+// --- Snow Generator ---
+function createSnow(layer, size, count, speed){
+    for(let i=0;i<count;i++){
+        const flake = document.createElement("div");
+        flake.className = "flake";
+        flake.style.width = size+"px";
+        flake.style.height = size+"px";
+        flake.style.left = Math.random()*100+"vw";
+        flake.style.animationDuration = speed + Math.random()*3 + "s";
+        flake.style.animationDelay = Math.random()*5 + "s";
+        layer.appendChild(flake);
+    }
+}
+createSnow(document.getElementById("snow1"),6,40,6);
+createSnow(document.getElementById("snow2"),3,60,10);
+createSnow(document.getElementById("snow3"),2,80,14);
+
+// --- Advent Calendar Logic ---
 const calendar = document.getElementById("calendar");
 const modal = document.getElementById("modal");
 const modalImg = document.getElementById("modalImg");
 
+// Memory: opened doors
 let openedDoors = JSON.parse(localStorage.getItem("openedDoors")) || [];
 
-// Shuffle array helper
-function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
+// Image pool (90 images)
+const imagePool = Array.from({length:90},(_,i)=>`images/pic${i+1}.jpg`);
+
+// User-specific 30-image assignment
+let userImages = JSON.parse(localStorage.getItem("userImages"));
+if(!userImages){
+    const shuffledPool = [...imagePool].sort(()=>Math.random()-0.5);
+    userImages = shuffledPool.slice(0,30);
+    localStorage.setItem("userImages",JSON.stringify(userImages));
 }
 
-const doorNumbers = shuffle(Array.from({length:30}, (_,i)=>i+1));
+// Shuffle doors positions
+const doorNumbers = [...Array(30).keys()].map(i=>i+1).sort(()=>Math.random()-0.5);
 
-doorNumbers.forEach(i => {
+doorNumbers.forEach((doorNumber,index)=>{
     const door = document.createElement("div");
-    door.className = "door";
+    door.className="door";
 
     const number = document.createElement("div");
-    number.className = "door-number";
-    number.textContent = i;
+    number.className="door-number";
+    number.textContent = doorNumber;
 
     door.appendChild(number);
     calendar.appendChild(door);
 
-    if (openedDoors.includes(i)) {
+    // Restore opened doors
+    if(openedDoors.includes(doorNumber)){
         door.classList.add("open");
-        number.style.display = "none";
+        number.style.display="none";
     }
 
-    door.addEventListener("click", () => {
-        const lockEnabled = document.getElementById("lockToggle").checked;
+    door.addEventListener("click",()=>{
+        const lockEnabled=document.getElementById("lockToggle").checked;
         const now = new Date();
-        const unlockDate = new Date(now.getFullYear(), 11, i);
+        const unlockDate = new Date(now.getFullYear(),11,doorNumber);
 
-        if (lockEnabled && now < unlockDate) {
-            alert(`Door ${i} unlocks on December ${i}.`);
+        if(lockEnabled && now<unlockDate){
+            alert(`Door ${doorNumber} unlocks on December ${doorNumber}.`);
             return;
         }
 
-        if (!door.classList.contains("open")) {
-            number.style.display = "none";
+        if(!door.classList.contains("open")){
+            number.style.display="none";
             door.classList.add("open");
-            openedDoors.push(i);
-            localStorage.setItem("openedDoors", JSON.stringify(openedDoors));
+            openedDoors.push(doorNumber);
+            localStorage.setItem("openedDoors",JSON.stringify(openedDoors));
 
             // Confetti
             confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 }
+                particleCount:100,
+                spread:70,
+                origin:{y:0.6}
             });
 
-            setTimeout(() => {
-                modalImg.src = `images/pic${i}.jpg`;
+            // Show image modal
+            setTimeout(()=>{
+                modalImg.src=userImages[index];
                 modal.classList.add("show");
-            }, 700);
+            },700);
         }
     });
 });
 
-/* ---- CLOSE MODAL ---- */
-modal.addEventListener("click", () => {
-    modal.classList.remove("show");
-});
-
-/* ---- SNOW GENERATOR ---- */
-function createSnow(layer, size, count, speed) {
-    for (let i = 0; i < count; i++) {
-        const flake = document.createElement("div");
-        flake.className = "flake";
-        flake.style.width = size + "px";
-        flake.style.height = size + "px";
-        flake.style.left = Math.random() * 100 + "vw";
-        flake.style.animationDuration = speed + Math.random() * 3 + "s";
-        flake.style.animationDelay = Math.random() * 5 + "s";
-        layer.appendChild(flake);
-    }
-}
-
-createSnow(document.getElementById("snow1"), 6, 40, 6);
-createSnow(document.getElementById("snow2"), 3, 60, 10);
-createSnow(document.getElementById("snow3"), 2, 80, 14);
+// Close modal
+modal.addEventListener("click",()=>{modal.classList.remove("show");});
 </script>
 
 </body>
