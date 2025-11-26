@@ -4,262 +4,332 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Advent Calendar</title>
+
 <style>
-body {
-    margin: 0;
-    background: black;
-    font-family: Arial, sans-serif;
-    color: white;
-    overflow-x: hidden;
-}
+    body {
+        margin: 0;
+        background: black;
+        font-family: Arial, sans-serif;
+        color: white;
+        overflow-x: hidden;
+    }
 
-h1 {
-    text-align: center;
-    margin-top: 30px;
-    font-size: 36px;
-    animation: fadeIn 1.5s ease forwards;
-}
+    h1 {
+        text-align: center;
+        margin-top: 30px;
+        font-size: 36px;
+        animation: fadeIn 1.5s ease forwards;
+    }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-/* Calendar Grid */
-.calendar {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 15px;
-    max-width: 1000px;
-    margin: 40px auto;
-}
+    /* GRID */
+    .calendar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 20px;
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 0 15px;
+        z-index: 5;
+        position: relative;
+    }
 
-/* Door */
-.door {
-    width: 100%;
-    aspect-ratio: 7 / 10;
-    background: #065EC4;
-    border-radius: 18px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2rem;
-    font-weight: bold;
-    color: white;
-    cursor: pointer;
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 1s ease;
-    box-shadow: 0 0 15px rgba(0, 0, 0, .5);
-}
+    /* DOOR */
+    .door {
+        width: 100%;
+        aspect-ratio: 0.7;
+        background: #065EC4;
+        border-radius: 18px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 42px;
+        font-weight: bold;
+        color: white;
+        cursor: pointer;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 1s ease;
+        box-shadow: 0 0 15px rgba(0, 0, 0, .5);
+    }
 
-.door:hover { transform: scale(1.05); }
-.door.open { transform: rotateY(-160deg); }
+    .door:hover {
+        transform: scale(1.05);
+    }
 
-.door-number { position: absolute; backface-visibility: hidden; }
+    .door.open {
+        transform: rotateY(-160deg);
+    }
 
-/* Modal */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.85);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 20;
-}
+    .door-number {
+        position: absolute;
+        backface-visibility: hidden;
+    }
 
-.modal-overlay.show { display: flex; }
+    /* MODAL OVERLAY */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.85);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 20;
+    }
 
-.modal-image {
-    max-width: 90%;
-    max-height: 90%;
-    border-radius: 12px;
-    box-shadow: 0 0 30px rgba(255,255,255,.7);
-}
+    .modal-overlay.show {
+        display: flex;
+    }
 
-/* Toggle and Reset */
-.toggle-area {
-    text-align: center;
-    margin: 15px 0;
-    font-size: 18px;
-}
+    .modal-image {
+        max-width: 90%;
+        max-height: 90%;
+        border-radius: 12px;
+        box-shadow: 0 0 30px rgba(255,255,255,.7);
+    }
 
-.toggle-area button {
-    margin-left: 15px;
-    padding: 5px 12px;
-    font-size: 16px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    background-color: #065EC4;
-    color: white;
-    transition: transform 0.2s;
-}
+    /* TOGGLE + RESET */
+    .top-controls {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 18px;
+    }
 
-.toggle-area button:hover { transform: scale(1.05); }
+    button {
+        margin-left: 20px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: none;
+        background: #065EC4;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+    }
 
-/* Snow */
-.snow-layer {
-    position: fixed;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-    z-index: 1;
-}
+    button:hover {
+        background: #0a74ff;
+    }
 
-.flake {
-    position: absolute;
-    background: white;
-    border-radius: 50%;
-    opacity: 0.9;
-    animation: fall linear infinite;
-}
+    /* SNOW */
+    .snow-layer {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 1;
+    }
 
-@keyframes fall {
-    from { transform: translateY(-10vh); }
-    to { transform: translateY(110vh); }
-}
+    .flake {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        opacity: 0.9;
+        animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+        from { transform: translateY(-10vh); }
+        to { transform: translateY(110vh); }
+    }
+
 </style>
 </head>
+
 <body>
 
 <h1>Winter Calendar</h1>
 
-<div class="toggle-area">
+<div class="top-controls">
     <label>
-        <input type="checkbox" id="lockToggle" checked /> Lock doors until Dec 1
+        <input type="checkbox" id="lockToggle" checked />
+        Lock doors until Dec 1
     </label>
+
     <button id="resetBtn">Reset Calendar</button>
 </div>
 
-<!-- Snow Layers -->
+<!-- SNOW LAYERS -->
 <div class="snow-layer" id="snow1"></div>
 <div class="snow-layer" id="snow2"></div>
 <div class="snow-layer" id="snow3"></div>
 
-<!-- Calendar -->
+<!-- CALENDAR -->
 <div class="calendar" id="calendar"></div>
 
-<!-- Modal -->
+<!-- IMAGE MODAL -->
 <div class="modal-overlay" id="modal">
     <img id="modalImg" class="modal-image" />
 </div>
 
-<!-- Confetti Library -->
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-
 <script>
-// --- Snow Generator ---
-function createSnow(layer, size, count, speed){
-    for(let i=0;i<count;i++){
-        const flake = document.createElement("div");
-        flake.className = "flake";
-        flake.style.width = size+"px";
-        flake.style.height = size+"px";
-        flake.style.left = Math.random()*100+"vw";
-        flake.style.animationDuration = speed + Math.random()*3 + "s";
-        flake.style.animationDelay = Math.random()*5 + "s";
-        layer.appendChild(flake);
-    }
-}
-createSnow(document.getElementById("snow1"),6,40,6);
-createSnow(document.getElementById("snow2"),3,60,10);
-createSnow(document.getElementById("snow3"),2,80,14);
 
-// --- Advent Calendar Logic ---
+/* -----------------------------------
+   RANDOM IMAGE ASSIGNMENT (32 IMAGES)
+----------------------------------- */
+function assignRandomImages() {
+    const imagePool = Array.from({length:32}, (_, i) => `images/pic${i+1}.jpg`);
+    const shuffledImages = imagePool.sort(() => Math.random() - 0.5);
+    localStorage.setItem("assignedImages", JSON.stringify(shuffledImages));
+}
+
+if (!localStorage.getItem("assignedImages")) {
+    assignRandomImages();
+}
+
+let assignedImages = JSON.parse(localStorage.getItem("assignedImages"));
+
+/* -----------------------------------
+         DOOR MEMORY (OPEN STATE)
+----------------------------------- */
+let openedDoors = JSON.parse(localStorage.getItem("openedDoors") || "[]");
+
+function saveOpenedDoors() {
+    localStorage.setItem("openedDoors", JSON.stringify(openedDoors));
+}
+
+/* -----------------------------------
+            DOOR SHUFFLING
+----------------------------------- */
+function shuffleDoors() {
+    const parent = document.getElementById("calendar");
+    const doors = Array.from(parent.children);
+    doors.sort(() => Math.random() - 0.5);
+    parent.innerHTML = "";
+    doors.forEach(d => parent.appendChild(d));
+}
+
+/* -----------------------------------
+           CREATE CALENDAR
+----------------------------------- */
 const calendar = document.getElementById("calendar");
 const modal = document.getElementById("modal");
 const modalImg = document.getElementById("modalImg");
 
-// Memory: opened doors
-let openedDoors = JSON.parse(localStorage.getItem("openedDoors")) || [];
-
-// Image pool (90 images)
-const imagePool = Array.from({length:37},(_,i)=>`images/pic${i+1}.png`);
-
-// User-specific 30-image assignment
-let userImages = JSON.parse(localStorage.getItem("userImages"));
-if(!userImages){
-    const shuffledPool = [...imagePool].sort(()=>Math.random()-0.5);
-    userImages = shuffledPool.slice(0,30);
-    localStorage.setItem("userImages",JSON.stringify(userImages));
-}
-
-// Shuffle doors positions
-const doorNumbers = [...Array(30).keys()].map(i=>i+1).sort(()=>Math.random()-0.5);
-
-doorNumbers.forEach((doorNumber,index)=>{
+for (let i = 1; i <= 30; i++) {
     const door = document.createElement("div");
-    door.className="door";
+    door.className = "door";
+    door.dataset.index = i - 1;
 
     const number = document.createElement("div");
-    number.className="door-number";
-    number.textContent = doorNumber;
+    number.className = "door-number";
+    number.textContent = i;
 
     door.appendChild(number);
     calendar.appendChild(door);
 
-    // Restore opened doors
-    if(openedDoors.includes(doorNumber)){
+    if (openedDoors.includes(i)) {
         door.classList.add("open");
-        number.style.display="none";
+        number.style.display = "none";
     }
 
-    door.addEventListener("click",()=>{
-        const lockEnabled=document.getElementById("lockToggle").checked;
+    door.addEventListener("click", () => {
+        const lockEnabled = document.getElementById("lockToggle").checked;
         const now = new Date();
-        const unlockDate = new Date(now.getFullYear(),11,doorNumber);
+        const unlockDate = new Date(now.getFullYear(), 11, i);
 
-        if(lockEnabled && now<unlockDate){
-            alert(`Door ${doorNumber} unlocks on December ${doorNumber}.`);
+        if (lockEnabled && now < unlockDate) {
+            alert(`Door ${i} unlocks on December ${i}.`);
             return;
         }
 
-        if(!door.classList.contains("open")){
-            number.style.display="none";
+        if (!door.classList.contains("open")) {
+            number.style.display = "none";
             door.classList.add("open");
-            openedDoors.push(doorNumber);
-            localStorage.setItem("openedDoors",JSON.stringify(openedDoors));
 
-            // Confetti
-            confetti({
-                particleCount:100,
-                spread:70,
-                origin:{y:0.6}
-            });
+            openedDoors.push(i);
+            saveOpenedDoors();
 
-            // Show image modal
-            setTimeout(()=>{
-                modalImg.src=userImages[index];
+            // small delay for flip
+            setTimeout(() => {
+                modalImg.src = assignedImages[door.dataset.index];
                 modal.classList.add("show");
-            },700);
+                launchConfetti();
+            }, 650);
         }
     });
+}
+
+/* Shuffle layout after creation */
+shuffleDoors();
+
+/* -----------------------------------
+           CLOSE MODAL
+----------------------------------- */
+modal.addEventListener("click", () => {
+    modal.classList.remove("show");
 });
 
-// Close modal
-modal.addEventListener("click",()=>{modal.classList.remove("show");});
-
-// Reset Calendar
-const resetBtn.addEventListener("click", () => {
-    // Clear memory
+/* -----------------------------------
+               RESET
+----------------------------------- */
+document.getElementById("resetBtn").addEventListener("click", () => {
     localStorage.removeItem("openedDoors");
     localStorage.removeItem("assignedImages");
 
-    // Reassign fresh randomized images
+    openedDoors = [];
     assignRandomImages();
+    assignedImages = JSON.parse(localStorage.getItem("assignedImages"));
 
-    // Reset door states
-    document.querySelectorAll(".door").forEach(door => {
-        door.classList.remove("open");
-        const num = door.querySelector(".door-number");
-        if (num) num.style.display = "block";
+    document.querySelectorAll(".door").forEach(d => {
+        d.classList.remove("open");
+        d.querySelector(".door-number").style.display = "block";
     });
 
-    // Shuffle door layout
     shuffleDoors();
 });
+
+/* -----------------------------------
+               SNOW
+----------------------------------- */
+function createSnow(layer, size, count, speed) {
+    for (let i = 0; i < count; i++) {
+        const flake = document.createElement("div");
+        flake.className = "flake";
+        flake.style.width = size + "px";
+        flake.style.height = size + "px";
+        flake.style.left = Math.random() * 100 + "vw";
+        flake.style.animationDuration = speed + Math.random() * 3 + "s";
+        flake.style.animationDelay = Math.random() * 5 + "s";
+        layer.appendChild(flake);
+    }
+}
+
+createSnow(document.getElementById("snow1"), 6, 40, 6);
+createSnow(document.getElementById("snow2"), 3, 60, 10);
+createSnow(document.getElementById("snow3"), 2, 80, 14);
+
+/* -----------------------------------
+               CONFETTI
+----------------------------------- */
+function launchConfetti() {
+    const colors = ["#ffffff", "#7FDBFF", "#39CCCC", "#B10DC9", "#FFDC00"];
+    for (let i = 0; i < 40; i++) {
+        const conf = document.createElement("div");
+        conf.style.position = "fixed";
+        conf.style.width = "8px";
+        conf.style.height = "8px";
+        conf.style.background = colors[Math.floor(Math.random() * colors.length)];
+        conf.style.top = "-10px";
+        conf.style.left = Math.random() * 100 + "vw";
+        conf.style.opacity = 0.9;
+        conf.style.transform = `rotate(${Math.random()*360}deg)`;
+        conf.style.transition = "transform 2s ease-out, top 2s ease-out, opacity 2.2s";
+
+        document.body.appendChild(conf);
+
+        setTimeout(() => {
+            conf.style.top = "100vh";
+            conf.style.transform = `translateX(${Math.random()*200 - 100}px) rotate(${Math.random()*360}deg)`;
+            conf.style.opacity = 0;
+        }, 20);
+
+        setTimeout(() => conf.remove(), 2500);
+    }
+}
 
 </script>
 
