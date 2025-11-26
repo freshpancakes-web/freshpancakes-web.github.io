@@ -242,14 +242,25 @@ doorNumbers.forEach((doorNumber,index)=>{
 modal.addEventListener("click",()=>{modal.classList.remove("show");});
 
 // Reset Calendar
-const resetBtn = document.getElementById("resetBtn");
-resetBtn.addEventListener("click",()=>{
-    if(confirm("Are you sure you want to reset your calendar? This will generate a new set of images.")){
-        localStorage.removeItem("openedDoors");
-        localStorage.removeItem("userImages");
-        location.reload();
-    }
+const resetBtn.addEventListener("click", () => {
+    // Clear memory
+    localStorage.removeItem("openedDoors");
+    localStorage.removeItem("assignedImages");
+
+    // Reassign fresh randomized images
+    assignRandomImages();
+
+    // Reset door states
+    document.querySelectorAll(".door").forEach(door => {
+        door.classList.remove("open");
+        const num = door.querySelector(".door-number");
+        if (num) num.style.display = "block";
+    });
+
+    // Shuffle door layout
+    shuffleDoors();
 });
+
 </script>
 
 </body>
