@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Advent Calendar</title>
+<title> POS Support Advent Calendar</title>
 
 <style>
     body {
@@ -141,7 +141,7 @@
 
 <body>
 
-<h1>Winter Calendar</h1>
+<h1>POS Support Advent Calendar</h1>
 
 <div class="top-controls">
     <label>
@@ -171,7 +171,7 @@
    RANDOM IMAGE ASSIGNMENT (32 IMAGES)
 ----------------------------------- */
 function assignRandomImages() {
-    const imagePool = Array.from({length:32}, (_, i) => `images/pic${i+1}.png`);
+    const imagePool = Array.from({length:41}, (_, i) => `images/pic${i+1}.PNG`);
     const shuffledImages = imagePool.sort(() => Math.random() - 0.5);
     localStorage.setItem("assignedImages", JSON.stringify(shuffledImages));
 }
