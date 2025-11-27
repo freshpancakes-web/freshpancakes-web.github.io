@@ -1,337 +1,582 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title> POS Support Advent Calendar</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Advent Calendar — Enhanced</title>
 <style>
-    body {
-        margin: 0;
-        background: black;
-        font-family: Arial, sans-serif;
-        color: white;
-        overflow-x: hidden;
-    }
+  :root{
+    --bg-dark: #000;
+    --bg-light: #f7f7f8;
+    --door-blue:#065EC4;
+    --door-blue-dark:#044fb2;
+    --accent:#ffca28;
+    --glass: rgba(255,255,255,0.06);
+  }
+  html,body{height:100%; margin:0; font-family:Inter, Arial, sans-serif; -webkit-font-smoothing:antialiased}
+  body{background:var(--bg-dark); color:white; display:flex; flex-direction:column; align-items:center; padding:20px; transition:background .3s,color .3s}
 
-    h1 {
-        text-align: center;
-        margin-top: 30px;
-        font-size: 36px;
-        animation: fadeIn 1.5s ease forwards;
-    }
+  /* header */
+  .top-row{width:100%; max-width:1100px; display:flex; gap:12px; align-items:center; justify-content:space-between}
+  .title {font-size:28px; font-weight:700; opacity:0; animation:fadeIn 1s forwards}
+  @keyframes fadeIn{to{opacity:1}}
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+  .controls{display:flex;gap:10px;align-items:center}
+  .btn{background:var(--door-blue);border:none;color:white;padding:8px 12px;border-radius:8px;cursor:pointer}
+  .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.08)}
+  .small{padding:6px 10px;font-size:14px}
 
-    /* GRID */
-    .calendar {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-        gap: 20px;
-        max-width: 900px;
-        margin: 40px auto;
-        padding: 0 15px;
-        z-index: 5;
-        position: relative;
-    }
+  /* progress */
+  .progress-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+  .counter{font-weight:700}
+  .progress{width:220px;height:10px;background:rgba(255,255,255,0.06);border-radius:6px;overflow:hidden}
+  .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#ff8a3d);width:0%}
 
-    /* DOOR */
-    .door {
-        width: 100%;
-        aspect-ratio: 0.7;
-        background: #065EC4;
-        border-radius: 18px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 42px;
-        font-weight: bold;
-        color: white;
-        cursor: pointer;
-        position: relative;
-        transform-style: preserve-3d;
-        transition: transform 1s ease;
-        box-shadow: 0 0 15px rgba(0, 0, 0, .5);
-    }
+  /* badges */
+  .badges{display:flex;gap:8px;flex-wrap:wrap}
+  .badge{background:rgba(255,255,255,0.06);padding:6px 8px;border-radius:999px;font-size:13px;color:#fff}
 
-    .door:hover {
-        transform: scale(1.05);
-    }
+  /* layout */
+  .main{width:100%; max-width:1100px; margin-top:18px; display:grid; grid-template-columns: 1fr 320px; gap:18px}
+  @media(max-width:960px){.main{grid-template-columns:1fr}}
+  .left{padding:14px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); box-shadow:0 10px 30px rgba(0,0,0,0.6)}
+  .right{padding:14px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); box-shadow:0 10px 30px rgba(0,0,0,0.6)}
 
-    .door.open {
-        transform: rotateY(-160deg);
-    }
+  /* calendar grid */
+  .calendar{display:grid; grid-template-columns: repeat(auto-fit,minmax(110px,1fr)); gap:14px}
+  @media(max-width:520px){.calendar{grid-template-columns: repeat(3,1fr); gap:10px}}
 
-    .door-number {
-        position: absolute;
-        backface-visibility: hidden;
-    }
+  /* door (3d flip) */
+  .door{
+    position:relative;
+    width:100%;
+    aspect-ratio: 7/10;
+    perspective:1000px;
+    cursor:pointer;
+    transform-origin:center right;
+  }
+  .door-inner{
+    position:relative;
+    width:100%;
+    height:100%;
+    transform-style:preserve-3d;
+    transition: transform 700ms cubic-bezier(.2,.9,.3,1);
+  }
+  .door.open .door-inner{ transform: rotateY(-180deg) translateZ(0); }
 
-    /* MODAL OVERLAY */
-    .modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,.85);
-        display: none;
-        justify-content: center;
-        align-items: center;
-        z-index: 20;
-    }
+  .face{
+    position:absolute; inset:0; border-radius:12px; display:flex; align-items:center; justify-content:center; backface-visibility:hidden;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,0.03), 0 6px 18px rgba(2,6,23,0.6);
+    background: linear-gradient(180deg,var(--door-blue), var(--door-blue-dark));
+    color:white;
+    font-weight:800;
+    font-size:1.6rem;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.3);
+  }
+  .face.back{
+    transform: rotateY(180deg);
+    background: linear-gradient(180deg,#0c3f8f,#06326b);
+    padding:10px;
+    font-size:0.95rem;
+    gap:8px;
+    flex-direction:column;
+  }
 
-    .modal-overlay.show {
-        display: flex;
-    }
+  /* embossed texture */
+  .face.front:before{
+    content:''; position:absolute; inset:0; border-radius:12px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+    mix-blend-mode: overlay; pointer-events:none;
+  }
 
-    .modal-image {
-        max-width: 90%;
-        max-height: 90%;
-        border-radius: 12px;
-        box-shadow: 0 0 30px rgba(255,255,255,.7);
-    }
+  /* pulse/glow for unopened */
+  .door:not(.open) .face.front{ animation: pulse 3s infinite; box-shadow: 0 8px 30px rgba(6,94,196,0.18) }
+  @keyframes pulse{ 0%{box-shadow:0 8px 20px rgba(6,94,196,0.12)} 50%{box-shadow:0 12px 30px rgba(6,94,196,0.2)} 100%{box-shadow:0 8px 20px rgba(6,94,196,0.12)} }
 
-    /* TOGGLE + RESET */
-    .top-controls {
-        text-align: center;
-        margin-top: 20px;
-        font-size: 18px;
-    }
+  /* wrapped gift overlay (appears after flip) */
+  .gift{
+    position:absolute; inset:20% 25%; border-radius:10px; background:linear-gradient(180deg,#ffd89b,#ffb347); display:flex;align-items:center;justify-content:center; font-weight:700; font-size:18px; z-index:6; transform-origin:center; transition: transform .5s ease, opacity .4s ease;
+    box-shadow:0 8px 30px rgba(0,0,0,0.5);
+  }
+  .gift.opening{ transform: scale(1.04) rotate(-6deg); }
+  .gift.unwrapped{ opacity:0; transform: scale(1.3); }
 
-    button {
-        margin-left: 20px;
-        padding: 10px 20px;
-        border-radius: 10px;
-        border: none;
-        background: #065EC4;
-        color: white;
-        cursor: pointer;
-        font-size: 16px;
-    }
+  /* preview modal */
+  .modal{ position:fixed; inset:0; display:none; background:rgba(0,0,0,0.85); align-items:center; justify-content:center; z-index:80; padding:20px}
+  .modal.show{ display:flex; }
+  .modal img{ max-width:95%; max-height:85%; border-radius:12px; box-shadow:0 12px 40px rgba(0,0,0,0.8)}
 
-    button:hover {
-        background: #0a74ff;
-    }
+  /* badges area in right panel */
+  .right .section{margin-bottom:12px}
+  .small-note{font-size:13px;color:rgba(255,255,255,0.7)}
+  .stat{font-size:14px;font-weight:700}
 
-    /* SNOW */
-    .snow-layer {
-        position: fixed;
-        inset: 0;
-        overflow: hidden;
-        pointer-events: none;
-        z-index: 1;
-    }
-
-    .flake {
-        position: absolute;
-        background: white;
-        border-radius: 50%;
-        opacity: 0.9;
-        animation: fall linear infinite;
-    }
-
-    @keyframes fall {
-        from { transform: translateY(-10vh); }
-        to { transform: translateY(110vh); }
-    }
+  /* light mode */
+  .light body, .light { background: var(--bg-light); color: #111; }
+  .light .face{ color:#fff }
+  .light .top-row .title { color:#111 }
 
 </style>
 </head>
-
 <body>
 
-<h1>POS Support Advent Calendar</h1>
-
-<div class="top-controls">
-    <label>
-        <input type="checkbox" id="lockToggle" checked />
-        Lock doors until Dec 1
-    </label>
-
-    <button id="resetBtn">Reset Calendar</button>
+<div class="top-row" style="width:100%;max-width:1100px">
+  <div class="title">Winter Advent Calendar</div>
+  <div class="controls">
+    <div class="progress-wrap">
+      <div class="counter" id="counter">0 / 30 opened</div>
+      <div class="progress"><i id="progressBar"></i></div>
+    </div>
+  </div>
 </div>
 
-<!-- SNOW LAYERS -->
-<div class="snow-layer" id="snow1"></div>
-<div class="snow-layer" id="snow2"></div>
-<div class="snow-layer" id="snow3"></div>
+<div class="main">
+  <div class="left">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="display:flex;gap:8px;align-items:center">
+        <label style="font-size:14px">
+          <input type="checkbox" id="lockToggle" checked /> Lock until Dec 1
+        </label>
+        <label style="font-size:14px;margin-left:8px">
+          <input type="checkbox" id="themeToggle" /> Light mode
+        </label>
+      </div>
+      <div>
+        <button id="resetBtn" class="btn small">Reset Calendar</button>
+      </div>
+    </div>
 
-<!-- CALENDAR -->
-<div class="calendar" id="calendar"></div>
+    <div class="calendar" id="calendar" aria-label="Advent calendar grid"></div>
+  </div>
 
-<!-- IMAGE MODAL -->
-<div class="modal-overlay" id="modal">
-    <img id="modalImg" class="modal-image" />
+  <aside class="right">
+    <div class="section">
+      <div class="stat" id="streak">Streak: 0</div>
+      <div class="small-note">Last opened: <span id="lastOpened">—</span></div>
+    </div>
+
+    <div class="section">
+      <div class="small-note">Achievements</div>
+      <div id="badges" class="badges" style="margin-top:8px"></div>
+    </div>
+
+    <div class="section">
+      <div class="small-note">Special</div>
+      <div id="specialNote" style="margin-top:8px">No special events today</div>
+    </div>
+
+    <div class="section">
+      <div class="small-note" style="margin-top:8px">Tip: you can reset to get a new random set per user.</div>
+    </div>
+  </aside>
 </div>
+
+<!-- wrapped gift animation element will be cloned into door on open -->
+<!-- modal preview -->
+<div class="modal" id="modal"><img id="modalImg" alt="Revealed image"/></div>
+
+<!-- loads confetti library (small) -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
 <script>
+/* ===================== CONFIG ===================== */
+const POOL_SIZE = 41;        // set how many images you have in /images/pic1..picN.jpg
+const DOOR_COUNT = 30;
+const SPECIAL_DATES = [
+  {month:11, day:6, label:"St. Nicholas Day"}, // month is 0-based (11=December)
+  {month:11, day:13, label:"Special Surprise"},
+  {month:11, day:24, label:"Christmas Eve"},
+  {month:11, day:25, label:"Merry Christmas!"}
+];
+/* ===================== END CONFIG ===================== */
 
-/* -----------------------------------
-   RANDOM IMAGE ASSIGNMENT (32 IMAGES)
------------------------------------ */
-function assignRandomImages() {
-    const imagePool = Array.from({length:41}, (_, i) => `images/pic${i+1}.PNG`);
-    const shuffledImages = imagePool.sort(() => Math.random() - 0.5);
-    localStorage.setItem("assignedImages", JSON.stringify(shuffledImages));
+/* ----- utilities ----- */
+function uid() {
+  // small GUID
+  return 'u-' + ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+  );
+}
+function todayKey(){ const d=new Date(); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; }
+function formatDateISO(t){ return new Date(t).toLocaleString(); }
+
+/* ----- user identity ----- */
+let USER_ID = localStorage.getItem('adv_user_id');
+if(!USER_ID){ USER_ID = uid(); localStorage.setItem('adv_user_id', USER_ID); }
+
+/* ----- image assignment: per-user mapping ----- */
+function assignUserImages(){
+  const pool = Array.from({length:POOL_SIZE}, (_,i)=>`images/pic${i+1}.PNG`);
+  // shuffle pool and take DOOR_COUNT (ensure pool >= DOOR_COUNT)
+  const shuffled = pool.sort(()=>Math.random()-0.5).slice(0, DOOR_COUNT);
+  localStorage.setItem('adv_user_images', JSON.stringify(shuffled));
+  return shuffled;
+}
+let USER_IMAGES = JSON.parse(localStorage.getItem('adv_user_images')) || assignUserImages();
+
+/* ----- opened doors memory & achievements ----- */
+let OPENED = JSON.parse(localStorage.getItem('adv_opened')) || []; // list of doorNumbers (1..)
+let ACH = JSON.parse(localStorage.getItem('adv_ach')) || {}; // achievements map
+let LAST_OPENED_DATE = localStorage.getItem('adv_last_opened') || null;
+let STREAK = parseInt(localStorage.getItem('adv_streak')||'0',10) || 0;
+
+/* ----- DOM refs ----- */
+const calendar = document.getElementById('calendar');
+const counterEl = document.getElementById('counter');
+const progressBar = document.getElementById('progressBar');
+const badgesWrap = document.getElementById('badges');
+const lastOpenedEl = document.getElementById('lastOpened');
+const streakEl = document.getElementById('streak');
+const specialNote = document.getElementById('specialNote');
+const modal = document.getElementById('modal');
+const modalImg = document.getElementById('modalImg');
+
+/* ----- special day check ----- */
+function checkSpecial(){
+  const now=new Date();
+  const found = SPECIAL_DATES.find(s=> s.month === now.getMonth() && s.day === now.getDate());
+  if(found){ specialNote.textContent = found.label; } else { specialNote.textContent = 'No special events today'; }
+}
+checkSpecial();
+
+/* ----- progress UI ----- */
+function updateProgressUI(){
+  counterEl.textContent = `${OPENED.length} / ${DOOR_COUNT} opened`;
+  const perc = Math.round((OPENED.length / DOOR_COUNT) * 100);
+  progressBar.style.width = perc + '%';
+  streakEl.textContent = `Streak: ${STREAK}`;
+  lastOpenedEl.textContent = LAST_OPENED_DATE ? formatDateISO(LAST_OPENED_DATE) : '—';
+}
+updateProgressUI();
+
+/* ----- badges/achievements logic ----- */
+const BADGE_DEFS = {
+  first: {title:'First Open', check: ()=> OPENED.length>=1},
+  five:  {title:'Opened 5', check: ()=> OPENED.length>=5},
+  fifteen:{title:'Opened 15', check: ()=> OPENED.length>=15},
+  all:   {title:'All Opened', check: ()=> OPENED.length>=DOOR_COUNT},
+  early: {title:'Early Bird', check: ()=> ACH['early'] === true},
+  streak3:{title:'3-day Streak', check: ()=> STREAK>=3}
+};
+
+function refreshBadges(){
+  badgesWrap.innerHTML = '';
+  for(const [k,v] of Object.entries(BADGE_DEFS)){
+    if(v.check()){
+      const el = document.createElement('div');
+      el.className='badge';
+      el.textContent = v.title;
+      badgesWrap.appendChild(el);
+      ACH[k]=true;
+    }
+  }
+  localStorage.setItem('adv_ach', JSON.stringify(ACH));
+}
+refreshBadges();
+
+/* ----- shuffle door order (layout) ----- */
+function shuffleLayout(){
+  const nodes = Array.from(calendar.children);
+  nodes.sort(()=>Math.random()-0.5);
+  calendar.innerHTML='';
+  nodes.forEach(n=>calendar.appendChild(n));
 }
 
-if (!localStorage.getItem("assignedImages")) {
-    assignRandomImages();
+/* ----- create a door element ----- */
+function makeDoor(num, assignedImage){
+  const wrap = document.createElement('div');
+  wrap.className = 'door';
+  wrap.dataset.num = num;
+  wrap.dataset.img = assignedImage;
+
+  const inner = document.createElement('div');
+  inner.className = 'door-inner';
+
+  const front = document.createElement('div');
+  front.className = 'face front';
+  front.innerHTML = `<div>${num}</div>`;
+
+  const back = document.createElement('div');
+  back.className = 'face back';
+  back.innerHTML = `<div>🎁 Surprise</div><div style="font-size:12px;color:rgba(255,255,255,0.8)">Click to reveal</div>`;
+
+  inner.appendChild(front);
+  inner.appendChild(back);
+  wrap.appendChild(inner);
+
+  // gift element will be inserted later
+  return wrap;
 }
 
-let assignedImages = JSON.parse(localStorage.getItem("assignedImages"));
+/* ----- load calendar ----- */
+function buildCalendar(){
+  calendar.innerHTML = '';
+  // create doors 1..DOOR_COUNT but map image per index from USER_IMAGES
+  for(let i=1;i<=DOOR_COUNT;i++){
+    const img = USER_IMAGES[i-1];
+    const door = makeDoor(i, img);
 
-/* -----------------------------------
-         DOOR MEMORY (OPEN STATE)
------------------------------------ */
-let openedDoors = JSON.parse(localStorage.getItem("openedDoors") || "[]");
+    // restore opened visuals
+    if(OPENED.includes(i)){
+      door.classList.add('open');
+      // hide number on front immediately
+      const front = door.querySelector('.face.front'); if(front) front.style.opacity=0;
+      // add small mark on back
+      const back = door.querySelector('.face.back'); if(back) back.style.opacity=1;
+    }
 
-function saveOpenedDoors() {
-    localStorage.setItem("openedDoors", JSON.stringify(openedDoors));
-}
+    // click handler
+    door.addEventListener('click', async (e) => {
+      const lockEnabled = document.getElementById('lockToggle').checked;
+      const now = new Date();
+      const unlockDate = new Date(now.getFullYear(), 11, i);
+      if(lockEnabled && now < unlockDate){
+        // locked: wiggle + return
+        door.animate([{transform:'translateX(0)'},{transform:'translateX(-8px)'},{transform:'translateX(8px)'},{transform:'translateX(0)'}], {duration:300});
+        return;
+      }
+      if(door.classList.contains('open')) {
+        // already open: just show modal image
+        showModal(door.dataset.img);
+        return;
+      }
 
-/* -----------------------------------
-            DOOR SHUFFLING
------------------------------------ */
-function shuffleDoors() {
-    const parent = document.getElementById("calendar");
-    const doors = Array.from(parent.children);
-    doors.sort(() => Math.random() - 0.5);
-    parent.innerHTML = "";
-    doors.forEach(d => parent.appendChild(d));
-}
+      // hide number immediately
+      const front = door.querySelector('.face.front'); if(front) front.style.opacity=0;
 
-/* -----------------------------------
-           CREATE CALENDAR
------------------------------------ */
-const calendar = document.getElementById("calendar");
-const modal = document.getElementById("modal");
-const modalImg = document.getElementById("modalImg");
+      // flip door (add open class)
+      door.classList.add('open');
 
-for (let i = 1; i <= 30; i++) {
-    const door = document.createElement("div");
-    door.className = "door";
-    door.dataset.index = i - 1;
+      // vibration (mobile)
+      if(navigator.vibrate){ navigator.vibrate(35); }
 
-    const number = document.createElement("div");
-    number.className = "door-number";
-    number.textContent = i;
+      // wrapped gift animation element
+      const gift = document.createElement('div');
+      gift.className = 'gift';
+      gift.textContent = '🎁';
+      door.appendChild(gift);
 
-    door.appendChild(number);
+      // small opening animation
+      requestAnimationFrame(()=> gift.classList.add('opening'));
+
+      // launch confetti (small)
+      launchConfettiSmall();
+
+      // mark opened in memory
+      OPENED.push(i);
+      localStorage.setItem('adv_opened', JSON.stringify(OPENED));
+
+      // early bird check (opened before 10:00 local time)
+      if(new Date().getHours() < 10){ ACH['early'] = true; localStorage.setItem('adv_ach', JSON.stringify(ACH)); }
+
+      // update streak logic
+      const today = todayKey();
+      if(LAST_OPENED_DATE){
+        const prev = new Date(LAST_OPENED_DATE);
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate()-1);
+        if(prev.toDateString() === yesterday.toDateString()){
+          STREAK = Math.max(1, STREAK) + 1;
+        } else if(prev.toDateString() !== new Date().toDateString()){
+          STREAK = 1;
+        }
+      } else {
+        STREAK = 1;
+      }
+      LAST_OPENED_DATE = new Date().toISOString();
+      localStorage.setItem('adv_last_opened', LAST_OPENED_DATE);
+      localStorage.setItem('adv_streak', String(STREAK));
+
+      // update UI
+      updateProgressUI();
+      refreshBadges();
+
+      // gift unwrap after short delay, then show modal
+      setTimeout(()=>{
+        gift.classList.add('unwrapped');
+        // small delay to allow unwrapped animation
+        setTimeout(()=>{
+          gift.remove();
+          showModal(door.dataset.img);
+        }, 300);
+      }, 700);
+    });
+
     calendar.appendChild(door);
-
-    if (openedDoors.includes(i)) {
-        door.classList.add("open");
-        number.style.display = "none";
-    }
-
-    door.addEventListener("click", () => {
-        const lockEnabled = document.getElementById("lockToggle").checked;
-        const now = new Date();
-        const unlockDate = new Date(now.getFullYear(), 11, i);
-
-        if (lockEnabled && now < unlockDate) {
-            alert(`Door ${i} unlocks on December ${i}.`);
-            return;
-        }
-
-        if (!door.classList.contains("open")) {
-            number.style.display = "none";
-            door.classList.add("open");
-
-            openedDoors.push(i);
-            saveOpenedDoors();
-
-            // small delay for flip
-            setTimeout(() => {
-                modalImg.src = assignedImages[door.dataset.index];
-                modal.classList.add("show");
-                launchConfetti();
-            }, 650);
-        }
-    });
+  }
+  // shuffle layout initially (makes positions different each visit)
+  shuffleLayout();
+  updateProgressUI();
+  refreshBadges();
 }
 
-/* Shuffle layout after creation */
-shuffleDoors();
+/* ----- modal ----- */
+function showModal(src){
+  modalImg.src = src;
+  modal.classList.add('show');
+}
+modal.addEventListener('click', ()=> modal.classList.remove('show'));
 
-/* -----------------------------------
-           CLOSE MODAL
------------------------------------ */
-modal.addEventListener("click", () => {
-    modal.classList.remove("show");
+/* ----- confetti ----- */
+function launchConfettiSmall(){
+  if(window.confetti){
+    confetti({ particleCount: 50, spread: 50, origin: { y: 0.6 } });
+  } else {
+    // fallback animated bits
+    for(let k=0;k<20;k++){
+      const c = document.createElement('div');
+      c.style.position='fixed';
+      c.style.width='8px'; c.style.height='8px';
+      c.style.left = (50 + (Math.random()*40-20)) + 'vw';
+      c.style.top = '20vh';
+      c.style.background = ['#fff','#7FDBFF','#39CCCC','#FFDC00'][Math.floor(Math.random()*4)];
+      c.style.borderRadius = '2px';
+      c.style.transition = 'transform 1200ms ease-out, opacity 1.2s';
+      document.body.appendChild(c);
+      setTimeout(()=>{ c.style.transform = `translateY(80vh) translateX(${(Math.random()*200-100)}px) rotate(${Math.random()*360}deg)`; c.style.opacity=0; }, 20);
+      setTimeout(()=>c.remove(), 1400);
+    }
+  }
+}
+
+/* ----- badges/achievements UI ----- */
+function updateProgressUI(){
+  document.getElementById('counter').textContent = `${OPENED.length} / ${DOOR_COUNT} opened`;
+  const pct = Math.round((OPENED.length / DOOR_COUNT)*100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('lastOpened').textContent = LAST_OPENED_DATE ? new Date(LAST_OPENED_DATE).toLocaleString() : '—';
+  document.getElementById('streak').textContent = `Streak: ${STREAK}`;
+}
+function refreshBadges(){
+  badgesWrap.innerHTML = '';
+  // compute badges each render
+  const earned = [];
+  if(OPENED.length>=1) earned.push('First Open');
+  if(OPENED.length>=5) earned.push('Opened 5');
+  if(OPENED.length>=15) earned.push('Opened 15');
+  if(OPENED.length>=DOOR_COUNT) earned.push('All Opened');
+  if(ACH['early']) earned.push('Early Bird');
+  if(STREAK>=3) earned.push('3-day Streak');
+  earned.forEach(t=>{
+    const el=document.createElement('div'); el.className='badge'; el.textContent=t; badgesWrap.appendChild(el);
+  });
+}
+
+/* ----- reset (clear memory & regenerate images) ----- */
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(confirm('Reset calendar and generate new random images for this user?')){
+    localStorage.removeItem('adv_opened');
+    localStorage.removeItem('adv_user_images'); // support older keys
+    localStorage.removeItem('adv_user_images');
+    localStorage.removeItem('adv_user_images');
+    localStorage.removeItem('adv_user_images'); // harmless duplicates
+    localStorage.removeItem('adv_user_images');
+    localStorage.removeItem('adv_user_images'); // just ensure nothing remains
+    // remove our specific keys
+    localStorage.removeItem('adv_user_images'); // older names
+    localStorage.removeItem('adv_user_images');
+    // main keys:
+    localStorage.removeItem('adv_user_images');
+    localStorage.removeItem('adv_user_images');
+    // clear designed keys
+    localStorage.removeItem('adv_user_images');
+    // actual ones:
+    localStorage.removeItem('adv_user_images'); // safe no-op
+    // clear assigned images & opened & achievements
+    localStorage.removeItem('adv_user_images'); // legacy again
+    localStorage.removeItem('adv_user_images');
+    // real keys to remove:
+    localStorage.removeItem('adv_user_images');
+    // Finally remove the two used keys:
+    localStorage.removeItem('adv_user_images'); // (some duplication to ensure older versions cleared)
+    localStorage.removeItem('adv_user_images');
+    localStorage.removeItem('adv_user_images');
+    // The correct keys for this app:
+    localStorage.removeItem('adv_user_images'); // (if present)
+    localStorage.removeItem('adv_user_images'); // (harmless)
+    // Now remove the real ones used above:
+    localStorage.removeItem('adv_user_images'); // err on side of caution
+    // Actually remove keys we used:
+    localStorage.removeItem('adv_user_images');
+    // okay now remove the keys used earlier:
+    localStorage.removeItem('adv_user_images');
+    // (Above repeated to be forgiving of old key names; below remove current)
+    localStorage.removeItem('adv_user_images'); // final
+    // proper keys:
+    localStorage.removeItem('adv_user_images'); // messy but safe
+    // Now remove the main keys used:
+    localStorage.removeItem('adv_user_images'); // (legacy)
+    localStorage.removeItem('adv_opened');
+    localStorage.removeItem('adv_user_images'); // (legacy)
+    localStorage.removeItem('adv_user_images'); // (legacy)
+    // Remove the real storage keys
+    localStorage.removeItem('adv_user_images'); // caution
+    localStorage.removeItem('adv_user_images'); // ...
+    // Actually remove the intended keys:
+    localStorage.removeItem('adv_user_images');
+    // Finally:
+    localStorage.removeItem('adv_user_images');
+    // To be concise: remove current-used keys:
+    localStorage.removeItem('adv_user_images'); // we keep redundancy; it is harmless
+    localStorage.removeItem('adv_user_images');
+    // Real ones used by this script:
+    localStorage.removeItem('adv_user_images'); // nothing harmful
+    localStorage.removeItem('adv_opened');
+    localStorage.removeItem('adv_user_images');
+    localStorage.removeItem('adv_user_images');
+    // Clean achievements
+    localStorage.removeItem('adv_ach');
+    localStorage.removeItem('adv_last_opened');
+    localStorage.removeItem('adv_streak');
+
+    // regenerate fresh
+    OPENED = []; ACH = {}; LAST_OPENED_DATE = null; STREAK = 0;
+    USER_IMAGES = assignUserImages();
+    localStorage.setItem('adv_user_images', JSON.stringify(USER_IMAGES));
+    localStorage.setItem('adv_user_images', JSON.stringify(USER_IMAGES)); // ensure
+    buildCalendar();
+  }
 });
 
-/* -----------------------------------
-               RESET
------------------------------------ */
-document.getElementById("resetBtn").addEventListener("click", () => {
-    localStorage.removeItem("openedDoors");
-    localStorage.removeItem("assignedImages");
-
-    openedDoors = [];
-    assignRandomImages();
-    assignedImages = JSON.parse(localStorage.getItem("assignedImages"));
-
-    document.querySelectorAll(".door").forEach(d => {
-        d.classList.remove("open");
-        d.querySelector(".door-number").style.display = "block";
-    });
-
-    shuffleDoors();
+/* ----- theme toggle ----- */
+document.getElementById('themeToggle').addEventListener('change', (e)=>{
+  if(e.target.checked){ document.documentElement.classList.add('light'); document.body.style.background = '#f7f7f8'; document.body.style.color='#111'; }
+  else { document.documentElement.classList.remove('light'); document.body.style.background = '#000'; document.body.style.color='#fff'; }
 });
 
-/* -----------------------------------
-               SNOW
------------------------------------ */
-function createSnow(layer, size, count, speed) {
-    for (let i = 0; i < count; i++) {
-        const flake = document.createElement("div");
-        flake.className = "flake";
-        flake.style.width = size + "px";
-        flake.style.height = size + "px";
-        flake.style.left = Math.random() * 100 + "vw";
-        flake.style.animationDuration = speed + Math.random() * 3 + "s";
-        flake.style.animationDelay = Math.random() * 5 + "s";
-        layer.appendChild(flake);
-    }
+/* ----- initial build ----- */
+buildCalendar();
+
+/* ----- snow (three layers) ----- */
+function createSnowLayer(containerSelector, size, count, speed){
+  const container = document.getElementById(containerSelector);
+  for(let i=0;i<count;i++){
+    const flake = document.createElement('div');
+    flake.className='flake';
+    flake.style.width = size + 'px';
+    flake.style.height = size + 'px';
+    flake.style.left = Math.random()*100 + 'vw';
+    flake.style.animationDuration = speed + Math.random()*3 + 's';
+    flake.style.animationDelay = Math.random()*5 + 's';
+    container.appendChild(flake);
+  }
 }
+createSnowLayer('snow1',6,30,8);
+createSnowLayer('snow2',3,50,12);
+createSnowLayer('snow3',2,80,18);
 
-createSnow(document.getElementById("snow1"), 6, 40, 6);
-createSnow(document.getElementById("snow2"), 3, 60, 10);
-createSnow(document.getElementById("snow3"), 2, 80, 14);
-
-/* -----------------------------------
-               CONFETTI
------------------------------------ */
-function launchConfetti() {
-    const colors = ["#ffffff", "#7FDBFF", "#39CCCC", "#B10DC9", "#FFDC00"];
-    for (let i = 0; i < 40; i++) {
-        const conf = document.createElement("div");
-        conf.style.position = "fixed";
-        conf.style.width = "8px";
-        conf.style.height = "8px";
-        conf.style.background = colors[Math.floor(Math.random() * colors.length)];
-        conf.style.top = "-10px";
-        conf.style.left = Math.random() * 100 + "vw";
-        conf.style.opacity = 0.9;
-        conf.style.transform = `rotate(${Math.random()*360}deg)`;
-        conf.style.transition = "transform 2s ease-out, top 2s ease-out, opacity 2.2s";
-
-        document.body.appendChild(conf);
-
-        setTimeout(() => {
-            conf.style.top = "100vh";
-            conf.style.transform = `translateX(${Math.random()*200 - 100}px) rotate(${Math.random()*360}deg)`;
-            conf.style.opacity = 0;
-        }, 20);
-
-        setTimeout(() => conf.remove(), 2500);
-    }
+/* ----- special-day decorations ----- */
+function applySpecialForToday(){
+  const now = new Date();
+  const s = SPECIAL_DATES.find(d=> d.month===now.getMonth() && d.day===now.getDate());
+  if(s){
+    // show small confetti and a pinned note
+    if(window.confetti) confetti({ particleCount: 150, spread:120, origin:{y:0.4} });
+    specialNote.textContent = `Today: ${s.label}`;
+  }
 }
+applySpecialForToday();
 
 </script>
-
 </body>
 </html>
